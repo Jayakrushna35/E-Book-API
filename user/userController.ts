@@ -19,9 +19,14 @@ const createUser = async(req:Request,res:Response,next:NextFunction) =>{
     }
 
     const hashPassword =  await bcrypt.hash(password,10);
-    
 
-    res.json({message:"user created"})    
+    const newUser = await userModel.create({
+        name,
+        email,
+        password:hashPassword,
+    });
+
+    res.json({id : newUser._id });  
 
 };
 
