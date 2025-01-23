@@ -11,6 +11,7 @@ app.get('/', (req, res, next) => {
    throw error;
     res.json({ message: "Welcome to elib apis" });
 });
+app.use(express.json());
 
 app.use('/api/users',userRouter);
 app.use(globalErrorHandler);
