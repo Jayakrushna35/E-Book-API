@@ -1,6 +1,7 @@
 import express from 'express';
 import createHttpError,{ HttpError } from 'http-errors';
 import globalErrorHandler from './middleware/globalErrorHandler';
+import userRouter from '../user/userRouter';
 
 
 const app = express();
@@ -11,7 +12,7 @@ app.get('/', (req, res, next) => {
     res.json({ message: "Welcome to elib apis" });
 });
 
-
+app.use('/api/users',userRouter);
 app.use(globalErrorHandler);
 
 export default app;
