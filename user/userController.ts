@@ -40,11 +40,15 @@ const createUser = async(req:Request,res:Response,next:NextFunction) =>{
     try{
 
         const token = sign({ sub: newUser._id }, config.jwtSerect as string,{ expiresIn : "7d",algorithm:'HS256'}); 
-        res.json({ accessToken: token });   
+        res.status(201).json({ accessToken: token });   
     }catch(err) {
         return next (createHttpError(500,"Error while getting user"));
     }    
         
 };
+const loginUser = async(req:Request,res:Response,next:NextFunction)=>{
+  
+};
 
-export {createUser};
+
+export {createUser,loginUser};
