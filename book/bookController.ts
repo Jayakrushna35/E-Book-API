@@ -43,6 +43,7 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
      await fs.promises.unlink(filePath);
      await fs.promises.unlink(bookfilePath);
      res.status(201).json({id: newBook._id});
+     
    }catch(err){
      return next(createHttpError(400,"file is not deleted"));
    }
