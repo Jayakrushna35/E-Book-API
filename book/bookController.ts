@@ -5,6 +5,7 @@ import cloudinary from '../src/config/cloudinary';
 import path from 'node:path';
 import bookModel from './bookModel';
 import { title } from 'node:process';
+import  {AuthRequest} from '../src/middleware/authenticate';
 
 
 
@@ -21,21 +22,24 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
      format: coverImageMimeType,
 
    });
-    
+
    const bookFileName = files.file[0].filename;
-   const bookfilePath = path.resolve(__dirname,"../../public/data/uploads",filename);
+   const bookfilePath = path.resolve(__dirname,"../../public/data/uploads",bookFileName);
     
+
    const bookFileUploadResult = await cloudinary.uploader.upload(bookfilePath,{
     resource_type:"raw",
     filename_override:bookFileName,
     folder:"book-pdfs",
     format:"pdf",
    })
+
+   const _req = req as AuthRequest;
    
    const newBook = await bookModel.create({
     title,
     genre,
-    author:"",
+    author:_req.userId,
     coverImage: uploadResult.secure_url,
     file:bookFileUploadResult.secure_url,
    });
@@ -43,7 +47,7 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
      await fs.promises.unlink(filePath);
      await fs.promises.unlink(bookfilePath);
      res.status(201).json({id: newBook._id});
-     
+
    }catch(err){
      return next(createHttpError(400,"file is not deleted"));
    }
