@@ -10,7 +10,7 @@ import  {AuthRequest} from '../src/middleware/authenticate';
 
 
 const createBook = async(req:Request,res:Response,next:NextFunction)=>{
-    const {title,genre} = req.body;
+   const {title,genre} = req.body;
    const files = req.files as { [filename: string]: Express.Multer.File[]};
    const coverImageMimeType = files.coverImage[0].mimetype.split("/").at(-1);
    const filename = files.coverImage[0].filename;
@@ -57,5 +57,49 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
    res.json({});
 };
 
+const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
+  const{ title , genre} = req.body;
+  const bookId = req.params.bookId;
 
-export {createBook};
+  const book = await bookModel.findOne({_id:bookId});
+
+  if(!book){
+    return next(createHttpError(404,"Book not found"));
+  }
+
+  const _req = req as AuthRequest;
+  if (book.author.toString() !== _req.userId.toString()) {
+    return next(createHttpError(403, "You are not authorized to update this book"));
+  }
+  const files = req.files as {[filename:string]: Express.Multer.File[];}
+  let completeCoverImage = "";
+  if (files.coverImage){
+    const filename = files.coverImage[0].filename;
+    const converMimeType = files.coverImage[0].mimetype.split("/").at(-1);
+     
+    const filePath = path.resolve(
+      __dirname,
+      "../../public/data/uploads/" + filename
+    );
+    completeCoverImage = filename;
+    const uploadResult = await cloudinary.uploader.upload(filePath,{
+      filename_override: completeCoverImage,
+      folder:"book-covers",
+    });
+    completeCoverImage = uploadResult.secure_url;
+    await fs.promises.unlink(filePath);
+
+
+  }
+  let completeFileName = "";
+    if(files.file){
+      const bookFilePath = path.resolve(
+        __dirname,
+        "../../public/data/uploads" + files.file[0].filename
+      );
+    }
+
+}; 
+
+
+export {createBook,updateBook};
