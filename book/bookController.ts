@@ -85,6 +85,7 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
     const uploadResult = await cloudinary.uploader.upload(filePath,{
       filename_override: completeCoverImage,
       folder:"book-covers",
+      format:"converMimeType "
     });
     completeCoverImage = uploadResult.secure_url;
     await fs.promises.unlink(filePath);
@@ -97,7 +98,32 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
         __dirname,
         "../../public/data/uploads" + files.file[0].filename
       );
+
+      const bookFileName = files.file[0].filename;
+      completeFileName = `${bookFileName}.pdf`;
+
+
+      const uploadResult = await cloudinary.uploader.upload(bookFilePath,{
+        resource_type:"raw",
+        filename_override: completeFileName,
+        folder:"book-covers",
+        format:"pdf"
+      });
+      completeFileName = uploadResultPdf.secure_url;
+      await fs.promises.unlink(bookFilePath);
     }
+    const updatedBook = await bookModel.findOneAndUpdate(
+      {
+        _id : bookId,
+      },{
+        title:bookId,
+        genre:genre,
+        coverImage: completeCoverImage ? completeCoverImage : book.coverImage,
+        file: completeFileName ? completeFileName : book.file,
+
+      },
+      {new:true}
+    );
 
 }; 
 
