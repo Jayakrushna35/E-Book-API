@@ -159,24 +159,17 @@ const deleteBook = async(req:Request,res:Response,next:NextFunction)=>{
     }
     const coverFilesplits = book.coverImage.split("/");
     const coverImagePublicId = coverFilesplits.at(-2) + "/" + (coverFilesplits.at(-1))?.split(".").at(-2);
-
-
+  
     const bookFileSplits = book.file.split("/");
     const bookfilePublicId = bookFileSplits.at(-2) +"/"+bookFileSplits.at(-1);
-
-
-
-
 
     await cloudinary.uploader.destroy(coverImagePublicId);
     await cloudinary.uploader.destroy(bookfilePublicId,{
       resource_type:"raw",
     });
 
-    return res.status(204). json({id:bookId});
+    res.status(204). json({id:bookId});
     await bookModel.deleteOne({_id:bookId});
-
-
 };
 
 
