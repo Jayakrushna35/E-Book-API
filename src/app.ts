@@ -6,7 +6,6 @@ import bookRouter from '../book/bookRouter';
 import cors from 'cors';
 import { config } from './config/config'
 
-
 const app = express();
 
 app.get('/', (req, res, next) => {
