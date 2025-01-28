@@ -84,7 +84,7 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
     completeCoverImage = filename;
     const uploadResult = await cloudinary.uploader.upload(filePath,{
       filename_override: completeCoverImage,
-      folder:"book-covers",
+      folder:"book-pdfs",
       format:"converMimeType "
     });
     completeCoverImage = uploadResult.secure_url;
@@ -109,7 +109,7 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
         folder:"book-covers",
         format:"pdf"
       });
-      completeFileName = uploadResultPdf.secure_url;
+      completeFileName = uploadResult.secure_url;
       await fs.promises.unlink(bookFilePath);
     }
     const updatedBook = await bookModel.findOneAndUpdate(
@@ -126,7 +126,7 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
     );
 
 }; 
- const listBooks = async(req:Request,res:Response,next:NextFunction)=>{
+const listBooks = async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const book = await bookModel.find();
     res.json(book);
@@ -139,12 +139,47 @@ const getsingleBook = async(req:Request,res:Response,next:NextFunction)=>{
    try{
        const book = await bookModel.findOne({_id : bookId});
        if(!book){
-        return next(createHttpError(404,"Book not found"))
+         return next(createHttpError(404,"Book not found"));
        }
-       return res.json(bookId);
+       res.json(bookId);
    }catch(err){
     return next (createHttpError(500,"Error while getting a book"));
    }
 
 };
-export {createBook,updateBook,listBooks};
+const deleteBook = async(req:Request,res:Response,next:NextFunction)=>{
+    const bookId = req.params.bookId;
+    const book = await bookModel.findOne({_id:bookId});
+    if(!book){
+      return next(createHttpError(404,"Book not found"))
+    }
+    const _req = req as AuthRequest;
+    if (book.author.toString() !== _req.userId.toString()) {
+      return next(createHttpError(403, "You are not authorized to update this book"));
+    }
+    const coverFilesplits = book.coverImage.split("/");
+    const coverImagePublicId = coverFilesplits.at(-2) + "/" + (coverFilesplits.at(-1))?.split(".").at(-2);
+
+
+    const bookFileSplits = book.file.split("/");
+    const bookfilePublicId = bookFileSplits.at(-2) +"/"+bookFileSplits.at(-1);
+
+
+
+
+
+    await cloudinary.uploader.destroy(coverImagePublicId);
+    await cloudinary.uploader.destroy(bookfilePublicId,{
+      resource_type:"raw",
+    });
+
+    return res.status(204).json({id:bookId});
+    await bookModel.deleteOne({_id:bookId});
+
+
+};
+
+
+
+
+export {createBook,updateBook,listBooks,getsingleBook,deleteBook};
