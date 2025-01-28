@@ -173,7 +173,7 @@ const deleteBook = async(req:Request,res:Response,next:NextFunction)=>{
       resource_type:"raw",
     });
 
-    return res.status(204).json({id:bookId});
+    return res.status(204). json({id:bookId});
     await bookModel.deleteOne({_id:bookId});
 
 
