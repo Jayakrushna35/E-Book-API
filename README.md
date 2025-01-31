@@ -27,10 +27,10 @@ The E-Book API provides a comprehensive interface to access and manage a collect
    cd E-Book-API
 Install Dependencies:
 
-bash
-Copy
-Edit
-npm install
+   ```bash
+   npm install
+   ```
+
 Set Up Environment Variables:
 
 Create a .env file in the root directory and add the following variables:
@@ -40,11 +40,13 @@ env
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
+
 Start the Server:
 
-bash
+   ```bash
+   npm start
+   ```
 
-npm start
 The API will be accessible at http://localhost:3000.
 
 API Endpoints
